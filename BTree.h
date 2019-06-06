@@ -1,8 +1,8 @@
 
-#include "utility.h"
+#include "utility.hpp"
 #include <functional>
 #include <cstddef>
-#include "exception.h"
+#include "exception.hpp"
 #include <iostream>
 #include <fstream>
 #include <cstring>
