@@ -7,8 +7,8 @@
 #include <fstream>
 #include <cstring>
 
-const int M=3;   //一个中间结点有 M 个孩子 有M-1 个key
-const int L=2;
+const int M=1000;   //一个中间结点有 M 个孩子 有M-1 个key
+const int L=200;
 const int Mmin=M/2;
 const int Lmin=L/2;
 
