@@ -8,8 +8,7 @@
 #include <cstring>
 
 const int M=1000;   //一个中间结点有 M 个孩子 有M-1 个key
-const int L=200;
-
+const int L=400;
 
 const  int MAX_FILENAME_LEN=30;
 
@@ -97,7 +96,7 @@ namespace sjtu {
         FILE *fp;
         bool fp_is_open;
         basic_info base;
-        bool file_already_exists=0;
+        bool file_has_already_existed;
         filenamestring fp_name;
 
 
@@ -199,27 +198,34 @@ namespace sjtu {
         //===================================文件操作=====================================//
 
         void openfile(){
-            file_already_exists=1;
+
+            file_has_already_existed=1;
             if(fp_is_open==0)
             {
-               // fp= fopen(fp_name.str,"rb+");
+
+                //如果这个文件已存在 并且 原来时关着的 就打开它 并且把信息读到base
+                fp= fopen(fp_name.str,"rb+");
+
                 //打开成功fopen返回指针地址，否则返回NULL
                 //然后检查一下文件是否打开成功  没打开成功说明文件不存在嗷
-                //if(fp==NULL)
-               // {
-                    //w：只能向文件写数据，若指定的文件不存在则创建它，如果存在则先删除它再重建一个新文件
+                if(fp== nullptr)
+                 {
+                    file_has_already_existed=0;
+                //w：只能向文件写数据，若指定的文件不存在则创建它，如果存在则先删除它再重建一个新文件
                     fp = fopen(fp_name.str,"w");
-                    //现在有文件啦  再以rw+打开  但是这个文件里没有bpt的基本信息嗷  待会用build_a_tree往里面写
+                //现在有文件啦  再以rw+打开  但是这个文件里没有bpt的基本信息嗷  待会用build_a_tree往里面写
                     fclose(fp);
                     fp =fopen(fp_name.str,"rb+");
 
-                //}
+
+                }
 
 
-                    //说明刚刚打开成功啦 已经有 bpt的信息啦 现在要读basic_info进内存
-             //   else{
-               //     ReadFile(&base,0,1, sizeof(basic_info));
-                //}
+
+                //说明刚刚打开成功啦 已经有 bpt的信息啦 现在要读basic_info进内存
+                 else{
+                     ReadFile(&base,0,1, sizeof(basic_info));
+                }
 
                 fp_is_open=1;
             }
@@ -242,6 +248,9 @@ namespace sjtu {
         //=======================================构造 析构======================================//
         void build_a_tree()
         {
+            //file_has_already_existed=1;
+
+            //fp_is_open=1;
             base.size=0;
             internal_node root;
             leaf_node leaf_left;
@@ -295,8 +304,7 @@ namespace sjtu {
             fp=NULL;
             openfile();
 
-            //如果刚刚那个文件是刚刚w创建的就要build_a_tree
-           // if(file_already_exists==0)
+            if(file_has_already_existed==0)
                 build_a_tree();
 
         }
@@ -407,8 +415,8 @@ namespace sjtu {
             ret.pair_pos=pos;
             ret.leaf_offset=leaf.offset;
 
-            //std::cout<<"successful inser leaf "<<key<<'\n';
-            //std::cout<<"now the numofpair in this leaf is "<<leaf.numOfpair<<'\n';
+            std::cout<<"successful inser leaf "<<key<<'\n';
+            std::cout<<"now the numofpair in this leaf is "<<leaf.numOfpair<<'\n';
 
             //把这个new_node写进文件覆盖掉原node  考虑分裂
             if(leaf.numOfpair<=L)
@@ -473,7 +481,7 @@ namespace sjtu {
             WriteFile(&new_leaf,new_leaf.offset,1, sizeof(leaf_node));
             WriteFile(&base,0,1, sizeof(basic_info));
 
-            /*std::cout<<"split_leaf"<<'\n';
+            std::cout<<"split_leaf"<<'\n';
             std::cout<<"cout old leaf key"<<'\n';
             for(int i=0;i<leaf.numOfpair;i++)
             {
@@ -487,7 +495,6 @@ namespace sjtu {
             }
             std::cout<<'\n';
 
-             */
             //维护爸爸
 
             internal_node father;
@@ -500,13 +507,12 @@ namespace sjtu {
         //==============================对中间结点的操作===================================//
         void insert_node(internal_node & cur,Key key,int new_leaf_offset)
         {
-            /*std::cout<<"before insert_node, the node contains key "<<'\n';
+            std::cout<<"before insert_node, the node contains key "<<'\n';
             for(int i=0;i<cur.numOfkey;i++)
             {
                 std::cout<<cur.key[i]<<" ";
             }
             std::cout<<'\n';
-             */
 
             int pos=0;
             for(pos=0;pos<cur.numOfkey;++pos)
@@ -530,11 +536,11 @@ namespace sjtu {
             //维护numOfkey
             ++cur.numOfkey;
 
-            /*std::cout<<"after insert_node the node contains key"<<'\n';
+            std::cout<<"after insert_node the node contains key"<<'\n';
             for(int i=0;i<cur.numOfkey;i++)
             {
                 std::cout<<cur.key[i]<<'\n';
-            }*/
+            }
 
             // 写回去  考虑分裂node
             if(cur.numOfkey<=M-1)
@@ -548,13 +554,12 @@ namespace sjtu {
 
         void split_internal(internal_node & node)
         {
-            /*std::cout<<"before spilt_internal the node contains key ";
+            std::cout<<"before spilt_internal the node contains key ";
             for(int i=0;i<node.numOfkey;i++)
             {
                 std::cout<<node.key[i]<<" ";
             }
             std::cout<<'\n';
-             */
 
             internal_node new_node;
 
@@ -572,12 +577,11 @@ namespace sjtu {
 
             new_node.offset=base.eof;
             base.eof+= sizeof(internal_node);
-           /* std::cout<<"new node's numofkey"<<"'\n";
+            std::cout<<"new node's numofkey"<<"'\n";
             std::cout<<new_node.numOfkey<<'\n';
 
             std::cout<<"node's numofkey"<<"'\n";
             std::cout<<node.numOfkey<<'\n';
-            */
 
             //更新new_node的数据
             for(int i=0;i<new_node.numOfkey;i++)
@@ -591,13 +595,12 @@ namespace sjtu {
                 new_node.ch[i]=node.ch[i+node.numOfkey+1];   //从numOfkey+1（下标）开始抄 numOfkey号（下标）放在node的最后一个
             }
 
-           /* std::cout<<"new node's key"<<'\n';
+            std::cout<<"new node's key"<<'\n';
             for(int i=0;i<new_node.numOfkey;i++)
             {
                 std::cout<<new_node.key[i]<<" ";
             }
             std::cout<<'\n';
-            */
 
             new_node.type=node.type;
 
@@ -630,7 +633,7 @@ namespace sjtu {
             //把中间那个插到爸爸里  考虑爸爸是root
             if(node.offset == base.root)
             {
-                //std::cout<<"new root will be build"<<'\n';
+                std::cout<<"new root will be build"<<'\n';
                 //新建一个根
                 internal_node new_root;
                 new_root.father=0;
@@ -652,7 +655,7 @@ namespace sjtu {
                 //更新base的root;
                 base.root=new_root.offset;
 
-               /*std::cout<<"new root's key"<<'\n';
+                std::cout<<"new root's key"<<'\n';
                 for(int i=0;i<new_root.numOfkey;i++)
                 {
                     std::cout<<new_root.key[i]<<' ';
@@ -672,7 +675,6 @@ namespace sjtu {
                     std::cout<<new_node.key[i]<<" ";
                 }
                 std::cout<<'\n';
-                */
 
 
                 //写进文件
@@ -686,7 +688,7 @@ namespace sjtu {
             else
             {
                 new_node.father=node.father;
-                /*std::cout<<"node's key"<<'\n';
+                std::cout<<"node's key"<<'\n';
                 for(int i=0;i<node.numOfkey;i++)
                 {
                     std::cout<<node.key[i]<<" ";
@@ -699,7 +701,6 @@ namespace sjtu {
                     std::cout<<new_node.key[i]<<" ";
                 }
                 std::cout<<'\n';
-                 */
                 WriteFile(&base,0,1,sizeof(basic_info));
                 WriteFile(&node,node.offset,1,sizeof(internal_node));
                 WriteFile(&new_node,new_node.offset,1, sizeof(internal_node));
