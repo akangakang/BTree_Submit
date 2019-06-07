@@ -415,8 +415,8 @@ namespace sjtu {
             ret.pair_pos=pos;
             ret.leaf_offset=leaf.offset;
 
-            std::cout<<"successful inser leaf "<<key<<'\n';
-            std::cout<<"now the numofpair in this leaf is "<<leaf.numOfpair<<'\n';
+           // std::cout<<"successful inser leaf "<<key<<'\n';
+            //std::cout<<"now the numofpair in this leaf is "<<leaf.numOfpair<<'\n';
 
             //把这个new_node写进文件覆盖掉原node  考虑分裂
             if(leaf.numOfpair<=L)
@@ -481,7 +481,7 @@ namespace sjtu {
             WriteFile(&new_leaf,new_leaf.offset,1, sizeof(leaf_node));
             WriteFile(&base,0,1, sizeof(basic_info));
 
-            std::cout<<"split_leaf"<<'\n';
+           /* std::cout<<"split_leaf"<<'\n';
             std::cout<<"cout old leaf key"<<'\n';
             for(int i=0;i<leaf.numOfpair;i++)
             {
@@ -494,7 +494,7 @@ namespace sjtu {
                 std::cout<<new_leaf.k[i]<<" ";
             }
             std::cout<<'\n';
-
+			*/
             //维护爸爸
 
             internal_node father;
@@ -507,13 +507,13 @@ namespace sjtu {
         //==============================对中间结点的操作===================================//
         void insert_node(internal_node & cur,Key key,int new_leaf_offset)
         {
-            std::cout<<"before insert_node, the node contains key "<<'\n';
+           /* std::cout<<"before insert_node, the node contains key "<<'\n';
             for(int i=0;i<cur.numOfkey;i++)
             {
                 std::cout<<cur.key[i]<<" ";
             }
             std::cout<<'\n';
-
+			*/
             int pos=0;
             for(pos=0;pos<cur.numOfkey;++pos)
             {
@@ -536,12 +536,12 @@ namespace sjtu {
             //维护numOfkey
             ++cur.numOfkey;
 
-            std::cout<<"after insert_node the node contains key"<<'\n';
+           /* std::cout<<"after insert_node the node contains key"<<'\n';
             for(int i=0;i<cur.numOfkey;i++)
             {
                 std::cout<<cur.key[i]<<'\n';
             }
-
+			*/
             // 写回去  考虑分裂node
             if(cur.numOfkey<=M-1)
                 WriteFile(&cur,cur.offset,1,sizeof(internal_node));
@@ -554,12 +554,12 @@ namespace sjtu {
 
         void split_internal(internal_node & node)
         {
-            std::cout<<"before spilt_internal the node contains key ";
+            /*std::cout<<"before spilt_internal the node contains key ";
             for(int i=0;i<node.numOfkey;i++)
             {
                 std::cout<<node.key[i]<<" ";
             }
-            std::cout<<'\n';
+            std::cout<<'\n';*/
 
             internal_node new_node;
 
@@ -577,12 +577,12 @@ namespace sjtu {
 
             new_node.offset=base.eof;
             base.eof+= sizeof(internal_node);
-            std::cout<<"new node's numofkey"<<"'\n";
+           /* std::cout<<"new node's numofkey"<<"'\n";
             std::cout<<new_node.numOfkey<<'\n';
 
             std::cout<<"node's numofkey"<<"'\n";
             std::cout<<node.numOfkey<<'\n';
-
+			*/
             //更新new_node的数据
             for(int i=0;i<new_node.numOfkey;i++)
             {
@@ -595,12 +595,12 @@ namespace sjtu {
                 new_node.ch[i]=node.ch[i+node.numOfkey+1];   //从numOfkey+1（下标）开始抄 numOfkey号（下标）放在node的最后一个
             }
 
-            std::cout<<"new node's key"<<'\n';
+/*            std::cout<<"new node's key"<<'\n';
             for(int i=0;i<new_node.numOfkey;i++)
             {
                 std::cout<<new_node.key[i]<<" ";
             }
-            std::cout<<'\n';
+            std::cout<<'\n';*/
 
             new_node.type=node.type;
 
@@ -633,7 +633,7 @@ namespace sjtu {
             //把中间那个插到爸爸里  考虑爸爸是root
             if(node.offset == base.root)
             {
-                std::cout<<"new root will be build"<<'\n';
+               // std::cout<<"new root will be build"<<'\n';
                 //新建一个根
                 internal_node new_root;
                 new_root.father=0;
@@ -655,7 +655,7 @@ namespace sjtu {
                 //更新base的root;
                 base.root=new_root.offset;
 
-                std::cout<<"new root's key"<<'\n';
+                /*std::cout<<"new root's key"<<'\n';
                 for(int i=0;i<new_root.numOfkey;i++)
                 {
                     std::cout<<new_root.key[i]<<' ';
@@ -674,7 +674,7 @@ namespace sjtu {
                 {
                     std::cout<<new_node.key[i]<<" ";
                 }
-                std::cout<<'\n';
+                std::cout<<'\n';*/
 
 
                 //写进文件
@@ -688,7 +688,7 @@ namespace sjtu {
             else
             {
                 new_node.father=node.father;
-                std::cout<<"node's key"<<'\n';
+               /* std::cout<<"node's key"<<'\n';
                 for(int i=0;i<node.numOfkey;i++)
                 {
                     std::cout<<node.key[i]<<" ";
@@ -700,7 +700,7 @@ namespace sjtu {
                 {
                     std::cout<<new_node.key[i]<<" ";
                 }
-                std::cout<<'\n';
+                std::cout<<'\n';*/
                 WriteFile(&base,0,1,sizeof(basic_info));
                 WriteFile(&node,node.offset,1,sizeof(internal_node));
                 WriteFile(&new_node,new_node.offset,1, sizeof(internal_node));
